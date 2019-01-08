@@ -2,9 +2,9 @@ import sys
 import random
 from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow
 from PyQt5 import QtWidgets, QtGui, QtCore
-from level_list import first_lvl, second_lvl, third_lvl
 import pymorphy2
 morph = pymorphy2.MorphAnalyzer()
+from level_list import first_lvl, second_lvl, third_lvl
 
 
 class Word:
@@ -16,7 +16,6 @@ class Word:
                 self.letters_dict[word[letter]].append(letter)
             else:
                 self.letters_dict[word[letter]] = [letter]
-        
     
     def check(self, word):
         bulls = 0
@@ -30,10 +29,18 @@ class Word:
                         cows += 1
         return bulls, cows
     
-    
+
+def ok_word(word):
+    p = morph.parse(word)
+    for i in p:
+        if i.tag.POS == 'NOUN':
+            if (i.normal_form == word) and (
+                str(i.methods_stack[0][0]) == '<DictionaryAnalyzer>'):
+                return True  
+            
+
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
-        self.start = False
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(353, 462)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
@@ -118,6 +125,7 @@ class MyWidget(QMainWindow,Ui_MainWindow):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
+        self.start = False
         self.repeat.clicked.connect(self.run_begin)
         self.check.clicked.connect(self.run_check)
     
@@ -144,7 +152,7 @@ class MyWidget(QMainWindow,Ui_MainWindow):
         
     def run_check(self):
         if self.start:
-            word = self.inputWord.text()
+            word = self.inputWord.text().lower()
             if ok_word(word):
                 if word == self.right:
                     self.win()
@@ -166,15 +174,6 @@ class MyWidget(QMainWindow,Ui_MainWindow):
         self.repeat.setText('Начать')
         self.inputWord.setText('*WIN!*')
         self.start = False
-        
-
-def ok_word(word):
-    p = morph.parse(word)
-    for i in p:
-        if i.tag.POS == 'NOUN':
-            if (i.normal_form == word) and (
-                str(i.methods_stack[0][0]) == '<DictionaryAnalyzer>'):
-                return True
  
  
 if __name__ == '__main__':
