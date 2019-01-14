@@ -42,7 +42,7 @@ def ok_word(word):
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(353, 462)
+        MainWindow.resize(690, 464)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.inputWord = QtWidgets.QLineEdit(self.centralwidget)
@@ -98,9 +98,21 @@ class Ui_MainWindow(object):
         font.setPointSize(10)
         self.textlevel.setFont(font)
         self.textlevel.setObjectName("textlevel")
+        self.history = QtWidgets.QTextBrowser(self.centralwidget)
+        self.history.setGeometry(QtCore.QRect(340, 10, 331, 211))
+        self.history.setObjectName("history")
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        self.history.setFont(font)        
+        self.note = QtWidgets.QTextEdit(self.centralwidget)
+        self.note.setGeometry(QtCore.QRect(340, 230, 331, 201))
+        self.note.setObjectName("note")
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        self.note.setFont(font)        
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 353, 21))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 690, 21))
         self.menubar.setObjectName("menubar")
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
@@ -141,8 +153,11 @@ class MyWidget(QMainWindow,Ui_MainWindow):
             self.right = answer_word
             self.answer_word = Word(answer_word)
             self.repeat.setText('Сдаться')
+            self.note.setText('')
             self.inputWord.setText('')
+            self.history.setPlainText('')
             self.start = True
+            self.num = 0
         else:
             self.inputWord.setText(self.right)
             self.repeat.setText('Начать')
@@ -152,15 +167,17 @@ class MyWidget(QMainWindow,Ui_MainWindow):
         
     def run_check(self):
         if self.start:
-            word = self.inputWord.text().lower()
-            if ok_word(word):
-                if word == self.right:
+            w = self.inputWord.text().lower()
+            if ok_word(w):
+                if w == self.right:
                     self.win()
                 else:
-                    word = Word(word)
+                    word = Word(w)
                     bulls, cows = self.answer_word.check(word)
                     self.bullsNum.display(bulls)
                     self.cowsNum.display(cows)
+                    self.num += 1
+                    self.history.append('{} - {}б, {}к'.format(w, str(bulls), str(cows)))
             else:
                 self.bullsNum.display(0)
                 self.cowsNum.display(0)
@@ -172,7 +189,7 @@ class MyWidget(QMainWindow,Ui_MainWindow):
         self.bullsNum.display(0)
         self.cowsNum.display(0)
         self.repeat.setText('Начать')
-        self.inputWord.setText('*WIN!*')
+        self.inputWord.setText('*ПОБЕДА! Кол-во ходов: {}*'.format(self.num))
         self.start = False
  
  
